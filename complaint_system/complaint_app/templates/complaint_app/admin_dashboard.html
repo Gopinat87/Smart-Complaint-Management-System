@@ -1,0 +1,85 @@
+{% extends 'complaint_app/base.html' %}
+{% block title %}Admin Dashboard — SmartComplain{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Admin Dashboard</h1>
+    <p class="page-sub">Welcome, {{ user.get_full_name|default:user.username }} 👋</p>
+  </div>
+  <a href="{% url 'admin_complaints' %}" class="btn btn-primary">View All Complaints</a>
+</div>
+
+<div class="stats-grid stats-grid-6">
+  <div class="stat-card stat-total">
+    <span class="stat-icon">📋</span>
+    <div><div class="stat-number">{{ stats.total }}</div><div class="stat-label">Total</div></div>
+  </div>
+  <div class="stat-card stat-pending">
+    <span class="stat-icon">⏳</span>
+    <div><div class="stat-number">{{ stats.pending }}</div><div class="stat-label">Pending</div></div>
+  </div>
+  <div class="stat-card stat-investigating">
+    <span class="stat-icon">🔍</span>
+    <div><div class="stat-number">{{ stats.investigating }}</div><div class="stat-label">Investigating</div></div>
+  </div>
+  <div class="stat-card stat-resolved">
+    <span class="stat-icon">✅</span>
+    <div><div class="stat-number">{{ stats.resolved }}</div><div class="stat-label">Resolved</div></div>
+  </div>
+  <div class="stat-card stat-rejected">
+    <span class="stat-icon">❌</span>
+    <div><div class="stat-number">{{ stats.rejected }}</div><div class="stat-label">Rejected</div></div>
+  </div>
+  <div class="stat-card stat-users">
+    <span class="stat-icon">👥</span>
+    <div><div class="stat-number">{{ stats.users }}</div><div class="stat-label">Users</div></div>
+  </div>
+</div>
+
+<div class="dashboard-grid">
+  <div>
+    <div class="section-header">
+      <h2>Recent Complaints</h2>
+      <a href="{% url 'admin_complaints' %}" class="view-all">View all →</a>
+    </div>
+    <div class="complaints-list">
+      {% for c in recent %}
+      <div class="complaint-row" onclick="window.location='{% url 'admin_complaint_detail' c.pk %}'">
+        <div class="complaint-row-left">
+          <span class="category-icon">{{ c.category.icon|default:'📋' }}</span>
+          <div>
+            <div class="complaint-title">#{{ c.pk }} — {{ c.title }}</div>
+            <div class="complaint-meta">{{ c.user.username }} · {{ c.category }} · {{ c.created_at|date:"M d, Y" }}</div>
+          </div>
+        </div>
+        <div class="complaint-row-right">
+          <span class="badge badge-{{ c.status }}">{{ c.get_status_display }}</span>
+          <span class="badge badge-priority-{{ c.priority }}">{{ c.get_priority_display }}</span>
+        </div>
+      </div>
+      {% empty %}
+      <div class="empty-state"><span class="empty-icon">📭</span><p>No complaints yet.</p></div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div>
+    <div class="section-header"><h2>By Category</h2></div>
+    <div class="category-stats">
+      {% for cat in by_category %}
+      <div class="cat-row">
+        <span class="cat-icon">{{ cat.icon }}</span>
+        <span class="cat-name">{{ cat.name }}</span>
+        <div class="cat-bar-wrap">
+          <div class="cat-bar" style="width: {% if stats.total %}{% widthratio cat.count stats.total 100 %}%{% else %}0%{% endif %}"></div>
+        </div>
+        <span class="cat-count">{{ cat.count }}</span>
+      </div>
+      {% empty %}
+      <p class="text-muted">No data yet.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

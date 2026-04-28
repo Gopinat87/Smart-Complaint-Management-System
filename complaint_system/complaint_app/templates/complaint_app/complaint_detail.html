@@ -1,0 +1,77 @@
+{% extends 'complaint_app/base.html' %}
+{% block title %}Complaint #{{ complaint.pk }} — SmartComplain{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Complaint #{{ complaint.pk }}</h1>
+    <p class="page-sub">Submitted on {{ complaint.created_at|date:"F d, Y" }}</p>
+  </div>
+  <a href="{% url 'my_complaints' %}" class="btn btn-ghost">← Back</a>
+</div>
+
+<div class="detail-grid">
+  <div class="detail-main">
+    <div class="detail-card">
+      <div class="detail-header">
+        <span class="category-icon-lg">{{ complaint.category.icon|default:'📋' }}</span>
+        <div>
+          <h2>{{ complaint.title }}</h2>
+          <p class="complaint-meta">{{ complaint.category }} {% if complaint.location %}· {{ complaint.location }}{% endif %}</p>
+        </div>
+        <div class="badge-group">
+          <span class="badge badge-{{ complaint.status }}">{{ complaint.get_status_display }}</span>
+          <span class="badge badge-priority-{{ complaint.priority }}">{{ complaint.get_priority_display }}</span>
+        </div>
+      </div>
+      <div class="detail-description">
+        <h3>Description</h3>
+        <p>{{ complaint.description }}</p>
+      </div>
+      {% if complaint.attachment %}
+      <div class="detail-attachment">
+        <h3>Attachment</h3>
+        <img src="{{ complaint.attachment.url }}" alt="Attachment" class="attachment-img">
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="timeline-card">
+      <h3>Status Timeline</h3>
+      <div class="timeline">
+        <div class="timeline-item timeline-first">
+          <div class="timeline-dot dot-submitted"></div>
+          <div class="timeline-content">
+            <strong>Complaint Submitted</strong>
+            <span class="timeline-date">{{ complaint.created_at|date:"M d, Y H:i" }}</span>
+          </div>
+        </div>
+        {% for update in updates %}
+        <div class="timeline-item">
+          <div class="timeline-dot dot-{{ update.new_status }}"></div>
+          <div class="timeline-content">
+            <strong>{{ update.get_new_status_display|default:update.new_status|title }}</strong>
+            <p>{{ update.message }}</p>
+            <span class="timeline-date">{{ update.timestamp|date:"M d, Y H:i" }} by {{ update.updated_by.get_full_name|default:update.updated_by.username }}</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="detail-sidebar">
+    <div class="sidebar-card">
+      <h3>Details</h3>
+      <dl class="detail-list">
+        <dt>Complaint ID</dt><dd>#{{ complaint.pk }}</dd>
+        <dt>Category</dt><dd>{{ complaint.category }}</dd>
+        <dt>Priority</dt><dd><span class="badge badge-priority-{{ complaint.priority }}">{{ complaint.get_priority_display }}</span></dd>
+        <dt>Status</dt><dd><span class="badge badge-{{ complaint.status }}">{{ complaint.get_status_display }}</span></dd>
+        <dt>Submitted</dt><dd>{{ complaint.created_at|date:"M d, Y" }}</dd>
+        <dt>Last Updated</dt><dd>{{ complaint.updated_at|date:"M d, Y" }}</dd>
+      </dl>
+    </div>
+  </div>
+</div>
+{% endblock %}

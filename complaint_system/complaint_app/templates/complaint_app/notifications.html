@@ -1,0 +1,28 @@
+{% extends 'complaint_app/base.html' %}
+{% block title %}Notifications — SmartComplain{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">Notifications</h1>
+</div>
+
+<div class="notifications-list">
+  {% for n in notifs %}
+  <div class="notif-item {% if not n.is_read %}notif-unread{% endif %}">
+    <div class="notif-icon">🔔</div>
+    <div class="notif-body">
+      <p>{{ n.message }}</p>
+      <span class="notif-time">{{ n.created_at|date:"M d, Y H:i" }}</span>
+    </div>
+    {% if n.link %}
+    <a href="{{ n.link }}" class="btn btn-sm btn-ghost">View →</a>
+    {% endif %}
+  </div>
+  {% empty %}
+  <div class="empty-state">
+    <span class="empty-icon">🔔</span>
+    <p>No notifications yet.</p>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

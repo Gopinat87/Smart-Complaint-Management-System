@@ -1,0 +1,55 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}SmartComplain{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'complaint_app/css/style.css' %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+{% if user.is_authenticated %}
+<nav class="navbar">
+  <a href="{% if user.is_staff %}{% url 'admin_dashboard' %}{% else %}{% url 'dashboard' %}{% endif %}" class="nav-brand">
+    <span class="brand-icon">◈</span> SmartComplain
+  </a>
+  <div class="nav-links">
+    {% if user.is_staff %}
+      <a href="{% url 'admin_dashboard' %}" class="nav-link">Dashboard</a>
+      <a href="{% url 'admin_complaints' %}" class="nav-link">Complaints</a>
+      <a href="{% url 'admin_users' %}" class="nav-link">Users</a>
+    {% else %}
+      <a href="{% url 'dashboard' %}" class="nav-link">Dashboard</a>
+      <a href="{% url 'submit_complaint' %}" class="nav-link nav-cta">+ New Complaint</a>
+      <a href="{% url 'my_complaints' %}" class="nav-link">My Complaints</a>
+    {% endif %}
+    <a href="{% url 'notifications' %}" class="nav-link notif-link">
+      🔔
+      {% with count=request.user.notifications.all %}
+        {% with unread=request.user.notifications.filter %}{% endwith %}
+      {% endwith %}
+      <span class="notif-badge" id="notif-badge"></span>
+    </a>
+    <a href="{% url 'logout' %}" class="nav-link nav-logout">Logout</a>
+  </div>
+</nav>
+{% endif %}
+
+<main class="main-content">
+  {% if messages %}
+    <div class="messages-container">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+  {% block content %}{% endblock %}
+</main>
+
+<script src="{% static 'complaint_app/js/main.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

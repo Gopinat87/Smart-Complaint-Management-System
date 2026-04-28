@@ -1,0 +1,49 @@
+{% extends 'complaint_app/base.html' %}
+{% block title %}My Complaints — SmartComplain{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">My Complaints</h1>
+    <p class="page-sub">Track all your submitted complaints here.</p>
+  </div>
+  <a href="{% url 'submit_complaint' %}" class="btn btn-primary">+ New Complaint</a>
+</div>
+
+<div class="filter-bar">
+  <form method="get" class="filter-form">
+    <select name="status" onchange="this.form.submit()" class="form-input filter-select">
+      <option value="">All Status</option>
+      <option value="pending"       {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+      <option value="investigating" {% if status_filter == 'investigating' %}selected{% endif %}>Investigating</option>
+      <option value="resolved"      {% if status_filter == 'resolved' %}selected{% endif %}>Resolved</option>
+      <option value="rejected"      {% if status_filter == 'rejected' %}selected{% endif %}>Rejected</option>
+    </select>
+  </form>
+</div>
+
+{% if complaints %}
+  <div class="complaints-list">
+    {% for c in complaints %}
+    <div class="complaint-row" onclick="window.location='{% url 'complaint_detail' c.pk %}'">
+      <div class="complaint-row-left">
+        <span class="category-icon">{{ c.category.icon|default:'📋' }}</span>
+        <div>
+          <div class="complaint-title">#{{ c.pk }} — {{ c.title }}</div>
+          <div class="complaint-meta">{{ c.category }} · {{ c.location }} · {{ c.created_at|date:"M d, Y" }}</div>
+        </div>
+      </div>
+      <div class="complaint-row-right">
+        <span class="badge badge-{{ c.status }}">{{ c.get_status_display }}</span>
+        <span class="badge badge-priority-{{ c.priority }}">{{ c.get_priority_display }}</span>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="empty-state">
+    <span class="empty-icon">📭</span>
+    <p>No complaints found. {% if not status_filter %}<a href="{% url 'submit_complaint' %}">Submit one now.</a>{% else %}<a href="{% url 'my_complaints' %}">Clear filter.</a>{% endif %}</p>
+  </div>
+{% endif %}
+{% endblock %}
